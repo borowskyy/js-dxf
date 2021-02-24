@@ -6,12 +6,14 @@ class Polyline
      * @param {number} startWidth
      * @param {number} endWidth
      */
-    constructor(points, closed = false, startWidth = 0, endWidth = 0)
+    constructor(points, closed = false, nor = undefined, elevation = 0, startWidth = 0, endWidth = 0)
     {
         this.points = points;
         this.closed = closed;
         this.startWidth = startWidth;
         this.endWidth = endWidth;
+        this.normal = nor;
+        this.elevation = elevation;
     }
 
     toDxfString()
@@ -24,9 +26,14 @@ class Polyline
         if (this.startWidth !== 0 || this.endWidth !== 0) {
             s += `40\n${this.startWidth}\n41\n${this.endWidth}\n`;
         }
+        // s += `100\nLWPOLYLINE\n`;
+        if (this.normal) {
+            s += `210\n${this.normal[0]}\n220\n${this.normal[1]}\n230\n${this.normal[2]}\n`
+        }
 
-        for (let i = 0; i < this.points.length; ++i)
-        {
+        s += `38\n${this.elevation || 0}\n`;
+
+        for (let i = 0; i < this.points.length; ++i) {
             s += `0\nVERTEX\n`;
             s += `8\n${this.layer.name}\n`;
             s += `70\n0\n`;
@@ -34,8 +41,9 @@ class Polyline
             if (this.points[i][2] !== undefined) {
                 s += `42\n${this.points[i][2]}\n`;
             }
+
         }
-        
+
         s += `0\nSEQEND\n`;
         return s;
     }

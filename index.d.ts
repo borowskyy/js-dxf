@@ -31,11 +31,13 @@ declare module "dxf-writer" {
     // [GroupCode, value]
     export type HeaderValue = [number, number];
 
-    export interface RenderableToDxf {
+    export interface RenderableToDxf
+    {
         toDxfString(): string;
     }
 
-    export class Arc implements RenderableToDxf {
+    export class Arc implements RenderableToDxf
+    {
 
         public x1: number;
         public y1: number;
@@ -61,7 +63,8 @@ declare module "dxf-writer" {
         toDxfString(): string;
     }
 
-    export class Circle implements RenderableToDxf {
+    export class Circle implements RenderableToDxf
+    {
         public x1: number;
         public y1: number;
         public r: number;
@@ -75,7 +78,8 @@ declare module "dxf-writer" {
         toDxfString(): string;
     }
 
-    export class Face implements RenderableToDxf {
+    export class Face implements RenderableToDxf
+    {
         public x1: number;
         public y1: number;
         public z1: number;
@@ -106,7 +110,8 @@ declare module "dxf-writer" {
         toDxfString(): string;
     }
 
-    export class Layer implements RenderableToDxf {
+    export class Layer implements RenderableToDxf
+    {
         public name: string;
         public colorNumber: number;
         public lineTypeName: string;
@@ -122,7 +127,8 @@ declare module "dxf-writer" {
         shapesToDxf(): string;
     }
 
-    export class Line implements RenderableToDxf {
+    export class Line implements RenderableToDxf
+    {
         public x1: number;
         public y1: number;
         public x2: number;
@@ -132,7 +138,8 @@ declare module "dxf-writer" {
         toDxfString(): string;
     }
 
-    export class LineType implements RenderableToDxf {
+    export class LineType implements RenderableToDxf
+    {
         public name: string;
         public description: string;
         public elements: Array<number>;
@@ -148,7 +155,8 @@ declare module "dxf-writer" {
         getElementsSum(): number;
     }
 
-    export class Point implements RenderableToDxf {
+    export class Point implements RenderableToDxf
+    {
         public x: number;
         public y: number;
 
@@ -156,21 +164,24 @@ declare module "dxf-writer" {
         toDxfString(): string;
     }
 
-    export class Polyline implements RenderableToDxf {
+    export class Polyline implements RenderableToDxf
+    {
         public points: Array<Point2D>;
 
         constructor(points: Array<Point2D>);
         toDxfString(): string;
     }
 
-    export class Polyline3D implements RenderableToDxf {
+    export class Polyline3D implements RenderableToDxf
+    {
         public points: Array<Point3D>;
 
         constructor(points: Array<Point3D>);
         toDxfString(): string;
     }
 
-    export class Text implements RenderableToDxf {
+    export class Text implements RenderableToDxf
+    {
         public x1: number;
         public y1: number;
         public height: number;
@@ -209,13 +220,14 @@ declare module "dxf-writer" {
         | 'WHITE'
         ;
 
-    export default class Drawing implements RenderableToDxf {
+    export default class Drawing implements RenderableToDxf
+    {
         constructor();
 
-        layers: { [key: string]: Layer };
+        layers: { [key: string]: Layer; };
         activeLayer: Layer | null;
-        lineTypes: { [key: string]: LineType };
-        headers: { [key: string]: Array<HeaderValue> };
+        lineTypes: { [key: string]: LineType; };
+        headers: { [key: string]: Array<HeaderValue>; };
 
         /**
          * @param {string} name
@@ -226,7 +238,7 @@ declare module "dxf-writer" {
 
         addLayer(name: string, colorNumber: number, lineTypeName: string): Drawing;
         setActiveLayer(name: string): Drawing;
-        drawLine(x1: number, y1: number, x2: number, y2: number): Drawing;
+        drawLine(x1: number, y1: number, z1: number, x2: number, y2: number, z1: number): Drawing;
         drawPoint(x: number, y: number): Drawing;
         drawRect(x1: number, y1: number, x2: number, y2: number): Drawing;
 
@@ -237,14 +249,14 @@ declare module "dxf-writer" {
          * @param {number} startAngle - degree
          * @param {number} endAngle - degree
          */
-        drawArc(x1: number, y1: number, r: number, startAngle: number, endAngle: number): Drawing;
+        drawArc(x1: number, y1: number, z1: number, r: number, startAngle: number, endAngle: number, normal?: [number, number, number]): Drawing;
 
         /**
          * @param {number} x1 - Center x
          * @param {number} y1 - Center y
          * @param {number} r - radius
          */
-        drawCircle(x1: number, y1: number, r: number): Drawing;
+        drawCircle(x1: number, y1: number, z1: number, r: number, normal?: [number, number, number]): Drawing;
 
         /**
          * @param {number} x1 - x
@@ -258,9 +270,11 @@ declare module "dxf-writer" {
         drawText(
             x1: number,
             y1: number,
+            z1: number,
             height: number,
             rotation: number,
             value: string,
+            nor?: [number, number, number],
             horizontalAlignment?: HorizontalAlignment,
             verticalAlignment?: VerticalAlignment,
         ): Drawing;
@@ -271,7 +285,7 @@ declare module "dxf-writer" {
          * @param {number} startWidth - Default start width
          * @param {number} endWidth - Default end width
          */
-        drawPolyline(points: Array<Point2D>, closed?: boolean, startWidth?: number, endWidth?: number): Drawing;
+        drawPolyline(points: Array<Point2D>, closed?: boolean, nor?: [number, number, number], elevation?: number, startWidth?: number, endWidth?: number): Drawing;
 
         /**
          * @param {array} points - Array of points like [ [x1, y1, z1], [x2, y2, z1]... ]
@@ -322,7 +336,7 @@ declare module "dxf-writer" {
          * AutoCAD Color Index (ACI)
          * @see http://sub-atomic.com/~moses/acadcolors.html
          */
-        static ACI: { [key in ACIKey]: number};
+        static ACI: { [key in ACIKey]: number };
 
         static LINE_TYPES: LineType[];
 
