@@ -26,7 +26,7 @@ declare module "dxf-writer" {
     export type VerticalAlignment = "baseline" | "bottom" | "middle" | "top";
 
     export type Point2D = [number, number];
-    export type Point3D = [number, number];
+    export type Point3D = [number, number, number];
 
     // [GroupCode, value]
     export type HeaderValue = [number, number];
@@ -41,23 +41,29 @@ declare module "dxf-writer" {
 
         public x1: number;
         public y1: number;
+        public z1: number;
         public r: number;
         public startAngle: number;
         public endAngle: number;
+        public normal: Point3D;
 
         /**
          * @param {number} x1 - Center x
          * @param {number} y1 - Center y
+         * @param {number} z1 - Center z
          * @param {number} r - radius
          * @param {number} startAngle - degree
          * @param {number} endAngle - degree
+         * @param {Point3D} [normal] - normal vector
          */
         constructor(
             x1: number,
             y1: number,
+            z1: number,
             r: number,
             startAngle: number,
             endAngle: number,
+            normal?: Point3D,
         );
 
         toDxfString(): string;
@@ -67,14 +73,18 @@ declare module "dxf-writer" {
     {
         public x1: number;
         public y1: number;
+        public z1: number;
         public r: number;
+        public normal: Point3D;
 
         /**
          * @param {number} x1 - Center x
          * @param {number} y1 - Center y
+         * @param {number} z1 - Center y
          * @param {number} r - radius
+         * @param {Point3D} [normal] - normal vector
          */
-        constructor(x1: number, y1: number, r: number);
+        constructor(x1: number, y1: number, z1: number, r: number, normal?: Point3D);
         toDxfString(): string;
     }
 
@@ -131,10 +141,12 @@ declare module "dxf-writer" {
     {
         public x1: number;
         public y1: number;
+        public z1: number;
         public x2: number;
         public y2: number;
+        public z2: number;
 
-        constructor(x1: number, y1: number, x2: number, y2: number);
+        constructor(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number);
         toDxfString(): string;
     }
 
@@ -167,8 +179,13 @@ declare module "dxf-writer" {
     export class Polyline implements RenderableToDxf
     {
         public points: Array<Point2D>;
+        public closed: boolean;
+        public nor: Point3D;
+        public elevation: number;
+        public startWidth: number;
+        public endWidth: number;
 
-        constructor(points: Array<Point2D>);
+        constructor(points: Array<Point2D>, closed? :boolean, nor?: Point3D, elevation?: number, startWidth?: number, endWidth?: number);
         toDxfString(): string;
     }
 
@@ -184,9 +201,11 @@ declare module "dxf-writer" {
     {
         public x1: number;
         public y1: number;
+        public z1: number;
         public height: number;
         public rotation: number;
         public value: string;
+        public normal: Point3D;
         public horizontalAlignment: HorizontalAlignment;
         public verticalAlignment: VerticalAlignment;
         /**
@@ -195,15 +214,18 @@ declare module "dxf-writer" {
          * @param {number} height - Text height
          * @param {number} rotation - Text rotation
          * @param {string} value - the string itself
+         * @param {Point3D} [normal] - normal vector
          * @param {HorizontalAlignment} [horizontalAlignment="left"] left | center | right
          * @param {VerticalAlignment} [verticalAlignment="baseline"] baseline | bottom | middle | top
          */
         constructor(
             x1: number,
             y1: number,
+            z1: number,
             height: number,
             rotation: number,
             value: string,
+            normal?: Point3D,
             horizontalAlignment?: HorizontalAlignment,
             verticalAlignment?: VerticalAlignment
         );
@@ -238,7 +260,7 @@ declare module "dxf-writer" {
 
         addLayer(name: string, colorNumber: number, lineTypeName: string): Drawing;
         setActiveLayer(name: string): Drawing;
-        drawLine(x1: number, y1: number, z1: number, x2: number, y2: number, z1: number): Drawing;
+        drawLine(x1: number, y1: number, z1: number, x2: number, y2: number, z2: number): Drawing;
         drawPoint(x: number, y: number): Drawing;
         drawRect(x1: number, y1: number, x2: number, y2: number): Drawing;
 
@@ -248,22 +270,27 @@ declare module "dxf-writer" {
          * @param {number} r - radius
          * @param {number} startAngle - degree
          * @param {number} endAngle - degree
+         * @param {Point3D} [normal] - normal vector
          */
-        drawArc(x1: number, y1: number, z1: number, r: number, startAngle: number, endAngle: number, normal?: [number, number, number]): Drawing;
+        drawArc(x1: number, y1: number, z1: number, r: number, startAngle: number, endAngle: number, normal?: Point3D): Drawing;
 
         /**
          * @param {number} x1 - Center x
          * @param {number} y1 - Center y
+         * @param {number} z1 - Center z
          * @param {number} r - radius
+         * @param {Point3D} [normal] - normal vector
          */
-        drawCircle(x1: number, y1: number, z1: number, r: number, normal?: [number, number, number]): Drawing;
+        drawCircle(x1: number, y1: number, z1: number, r: number, normal?: Point3D): Drawing;
 
         /**
          * @param {number} x1 - x
          * @param {number} y1 - y
+         * @param {number} z1 - y
          * @param {number} height - Text height
          * @param {number} rotation - Text rotation
          * @param {string} value - the string itself
+         * @param {Point3D} [nor] - normal vector
          * @param {HorizontalAlignment} [horizontalAlignment="left"] left | center | right
          * @param {VerticalAlignment} [verticalAlignment="baseline"] baseline | bottom | middle | top
          */
@@ -274,7 +301,7 @@ declare module "dxf-writer" {
             height: number,
             rotation: number,
             value: string,
-            nor?: [number, number, number],
+            nor?: Point3D,
             horizontalAlignment?: HorizontalAlignment,
             verticalAlignment?: VerticalAlignment,
         ): Drawing;
@@ -282,10 +309,12 @@ declare module "dxf-writer" {
         /**
          * @param {array} points - Array of points like [ [x1, y1], [x2, y2]... ]
          * @param {boolean} closed - Closed polyline flag
-         * @param {number} startWidth - Default start width
-         * @param {number} endWidth - Default end width
+         * @param {Point3D} [nor] - normal vector
+         * @param {number} [elevation] - Default start width
+         * @param {number} [startWidth] - Default start width
+         * @param {number} [endWidth] - Default end width
          */
-        drawPolyline(points: Array<Point2D>, closed?: boolean, nor?: [number, number, number], elevation?: number, startWidth?: number, endWidth?: number): Drawing;
+        drawPolyline(points: Array<Point2D>, closed?: boolean, nor?: Point3D, elevation?: number, startWidth?: number, endWidth?: number): Drawing;
 
         /**
          * @param {array} points - Array of points like [ [x1, y1, z1], [x2, y2, z1]... ]
